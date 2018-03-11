@@ -1,0 +1,12 @@
+*.pdf
+*.vrb
+*.nav
+*.pdf
+*.snm
+*.toc
+*.vrb
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+_minted-constraints

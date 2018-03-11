@@ -1,0 +1,51 @@
+\documentclass[bigger]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{biblatex}
+\usepackage{fontspec}
+\usepackage{minted}
+\setmonofont{PragmataPro}
+\setminted{autogobble=true,fontsize=\footnotesize}
+\addbibresource{rust-in-peace.bib}
+
+\setbeamersize{text margin left=0.6cm,text margin right=0.6cm}
+
+\usetheme{Copenhagen}
+
+\author{Balaji Sivaraman (\href{https://twitter.com/balajisivaraman}{@balajisivaraman})}
+\date{March 15, 2018}
+\title{Rust in Peace}
+\institute{ThoughtWorks}
+\hypersetup{
+ pdfauthor={Balaji Sivaraman},
+ pdftitle={Rust in Peace},
+ pdfkeywords={rust-lang,systems-programming,memory-management,lifetimes},
+ pdfsubject={A talk on the features of Rust that enables us to write safe, error-free, concurrent systems programs},
+ pdflang={English}}
+
+\begin{document}
+
+\maketitle
+
+\input{about-me}
+
+\begin{frame}
+  \centerline{
+    \huge{Thank you!}
+  }
+  \centerline{
+    \footnotesize{Slides source available at: \href{https://github.com/balajisivaraman/rust-in-peace}{https://github.com/balajisivaraman/rust-in-peace}}
+  }
+\end{frame}
+\end{document}

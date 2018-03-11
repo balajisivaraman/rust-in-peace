@@ -1,0 +1,87 @@
+\begin{section}{Lifetimes}
+  \begin{frame}[fragile]
+    \frametitle{What do you expect this to do?}
+    \begin{minted}{rust}
+      pub fn main() {
+        let mut s1: &str = "hello";
+        let mut s2: &str = "world";
+        do_something(&s1, &s2);
+      }
+
+      fn do_something(s1: &str, s2: &str) -> &str {
+        //do something
+        s1
+      }
+    \end{minted}
+  \end{frame}
+
+
+  \begin{frame}[fragile]
+    \frametitle{Rust Befuddles Us}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut s1: &str = "hello";
+        let mut s2: &str = "world";
+        do_something(&s1, &s2);
+      }
+
+      fn do_something(s1: &str, s2: &str) -> &str ?\tikzmark{lifetime_error}? {
+        //do something
+        s1
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:lifetime_error) ++(-0.5,-0.1) to[bend left]
+      ++(-0.5,-1.5)node[left]{\scriptsize Rust doesn't know lifetime of returned string};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{The `Fix`}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut s1: &str = "hello";
+        let mut s2: &str = "world";
+        do_something(&s1, &s2);
+      }
+
+      fn do_something(s1: &'a str, s2: &'a str) -> &'a str ?\tikzmark{lifetime_fix}? {
+        //do something
+        s1
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:lifetime_fix) ++(-0.5,-0.1) to[bend left]
+      ++(-2,-1.5)node[left]{\scriptsize We say all Strings have the same life};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Why are Lifetimes necessary?}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut s1 = String::from("hello");
+        let result;
+        {
+          let mut s2 = String::from("world");
+          result = do_something(&s1, &s2);
+        } ?\tikzmark{s2_lifetime_error}?
+        println("{}", result);
+      } ?\tikzmark{s1_lifetime_error}?
+
+      fn do_something(s1: &'a str, s2: &'a str) -> &'a str {
+        //do something
+        s1
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:s2_lifetime_error) ++(0,0.1) --
+      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} is only valid till here};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,0.1) --
+      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} is valid till here};
+    \end{tikzpicture}
+  \end{frame}
+
+\end{section}

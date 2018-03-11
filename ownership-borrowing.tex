@@ -1,0 +1,196 @@
+\begin{section}{Ownership and Borrowing}
+  \begin{frame}[fragile]
+    \frametitle{A Simple Program}
+    \begin{minted}{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        println!("{:?}", v);
+      }
+    \end{minted}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{What the Rust compiler does?}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        println!("{:?}", v);
+      } ?\tikzmark{compiler_free}?
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:compiler_free) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Rust compiler frees the vector \mintinline{rust}{v} here};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Another Simple Program}
+    \begin{minted}{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        do_something(v);
+        println!("{:?}", v);
+      }
+
+      fn do_something(v: Vec<usize>) {
+        // Do something with v
+      }
+    \end{minted}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{What happens here?}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        do_something(v); ?\tikzmark{ownership_moved}?
+        println!("{:?}", v); ?\tikzmark{ownership_compiler_error}?
+      }
+
+      fn do_something(v: Vec<usize>) {
+        // Do something with v
+      } ?\tikzmark{ownership_compiler_freed}?
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:ownership_moved) ++(0,0.1) --
+      ++(2,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:ownership_compiler_freed) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Rust compiler frees the vector \mintinline{rust}{v} here};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:ownership_compiler_error) ++(0,0.1) --
+      ++(2,0)node[right]{\scriptsize Rust doesn't allow us to use \mintinline{rust}{v} here};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Returning Ownership Back}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        let v1 = do_something(v); ?\tikzmark{return_ownership_moved}?
+        println!("{:?}", v1); ?\tikzmark{return_ownership_noerror}?
+      }
+
+      fn do_something(v: Vec<usize>) -> Vec<usize> {
+        // Do something with v
+        return v; ?\tikzmark{return_ownership}?
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:return_ownership_moved) ++(0,0.1) --
+      ++(1.2,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:return_ownership) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} returned to calling fn};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:return_ownership_noerror) ++(0,0.1) --
+      ++(2,0)node[right]{\scriptsize We can safely use \mintinline{rust}{v1} here};
+    \end{tikzpicture}
+  \end{frame}
+
+    \begin{frame}[fragile]
+    \frametitle{Borrowing}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        do_something(&v); ?\tikzmark{borrow_ownership}?
+        println!("{:?}", &v); ?\tikzmark{borrow_ownership_noerror}?
+      }
+
+      fn do_something(v: &Vec<usize>) {
+        // Do something with v
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:borrow_ownership) ++(0,0.1) --
+      ++(1.2,0)node[right]{\scriptsize \mintinline{rust}{do_something} borrows ownership of \mintinline{rust}{v}};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:borrow_ownership_noerror) ++(0,0.1) --
+      ++(2,0)node[right]{\scriptsize Rust doesn't complain about \mintinline{rust}{v} usage here};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Let's Mutate Things}
+    \begin{minted}{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        do_something(&v);
+        println!("{:?}", v);
+      }
+
+      fn do_something(v: &Vec<usize>) {
+        v.push(1);
+      }
+    \end{minted}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Uh Oh!}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let v = vec!(1,2,3);
+        do_something(&v);
+        println!("{:?}", v);
+      }
+
+      fn do_something(v: &Vec<usize>) {
+        v.push(1); ?\tikzmark{immutable_borrow_error}?
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:immutable_borrow_error) ++(0,0.1) --
+      ++(2,0)node[right]{\scriptsize Cannot mutate immutably borrowed \mintinline{rust}{v} here};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Let's Mutate Everything}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut v = vec!(1,2,3);
+        do_something(&mut v);
+        println!("{:?}", v);
+      }
+
+      fn do_something(v: &mut Vec<usize>) {
+        v.push(1);
+      }
+    \end{minted}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{One Final Note}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut v = vec!(1,2,3);
+        do_something(&mut v, &v); ?\tikzmark{mutable_immutable_borrow_error}?
+        println!("{:?}", v);
+      }
+
+      fn do_something(v_mut: &mut Vec<usize>, v: &Vec<usize>) {
+        // do something with v here
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:mutable_immutable_borrow_error) ++(0,0.1) --
+      ++(1,0)node[right]{\scriptsize Cannot borrow \mintinline{rust}{v} both mutably and immutably};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}{Ownership and Borrowing Summary}
+    \begin{itemize}
+    \item Ownership once transferred, cannot be regained
+    \item We cannot mutate immutable borrowed content
+    \item We cannot borrow both mutably and immutably at the same time
+    \item We can immutably any number of times
+    \end{itemize}
+  \end{frame}
+
+\end{section}

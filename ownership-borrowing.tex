@@ -81,7 +81,7 @@
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:return_ownership_moved) ++(0,0.1) --
-      ++(1.2,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
+      ++(1,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:return_ownership) ++(0,0.1) --
@@ -126,7 +126,7 @@
       }
 
       fn do_something(v: &Vec<usize>) {
-        v.push(1);
+        v.push(4);
       }
     \end{minted}
   \end{frame}
@@ -141,7 +141,7 @@
       }
 
       fn do_something(v: &Vec<usize>) {
-        v.push(1); ?\tikzmark{immutable_borrow_error}?
+        v.push(4); ?\tikzmark{immutable_borrow_error}?
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
@@ -160,7 +160,7 @@
       }
 
       fn do_something(v: &mut Vec<usize>) {
-        v.push(1);
+        v.push(4);
       }
     \end{minted}
   \end{frame}

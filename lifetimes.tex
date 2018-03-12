@@ -45,7 +45,7 @@
         do_something(&s1, &s2);
       }
 
-      fn do_something(s1: &'a str, s2: &'a str) -> &'a str ?\tikzmark{lifetime_fix}? {
+      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str ?\tikzmark{lifetime_fix}? {
         //do something
         s1
       }
@@ -54,6 +54,26 @@
       \draw[thick,->] (pic cs:lifetime_fix) ++(-0.5,-0.1) to[bend left]
       ++(-2,-1.5)node[left]{\scriptsize We say all Strings have the same life};
     \end{tikzpicture}
+  \end{frame}
+
+    \begin{frame}[fragile]
+    \frametitle{Why are Lifetimes necessary?}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut s1 = String::from("hello");
+        let result;
+        {
+          let mut s2 = String::from("world");
+          result = do_something(&s1, &s2);
+        }
+        println("{}", result);
+      }
+
+      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+        //do something
+        s1
+      }
+    \end{minted}
   \end{frame}
 
   \begin{frame}[fragile]
@@ -69,7 +89,7 @@
         println("{}", result);
       } ?\tikzmark{s1_lifetime_error}?
 
-      fn do_something(s1: &'a str, s2: &'a str) -> &'a str {
+      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str {
         //do something
         s1
       }

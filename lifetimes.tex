@@ -1,11 +1,19 @@
 \begin{section}{Lifetimes}
+
+  \begin{frame}
+    \centerline{
+      \huge{Lifetimes}
+    }
+  \end{frame}
+
   \begin{frame}[fragile]
     \frametitle{What do you expect this to do?}
     \begin{minted}{rust}
       pub fn main() {
         let mut s1: &str = "hello";
         let mut s2: &str = "world";
-        do_something(&s1, &s2);
+        let result = do_something(&s1, &s2);
+        println!("{}", result);
       }
 
       fn do_something(s1: &str, s2: &str) -> &str {
@@ -22,7 +30,8 @@
       pub fn main() {
         let mut s1: &str = "hello";
         let mut s2: &str = "world";
-        do_something(&s1, &s2);
+        let result = do_something(&s1, &s2);
+        println!("{}", result);
       }
 
       fn do_something(s1: &str, s2: &str) -> &str ?\tikzmark{lifetime_error}? {
@@ -42,7 +51,8 @@
       pub fn main() {
         let mut s1: &str = "hello";
         let mut s2: &str = "world";
-        do_something(&s1, &s2);
+        let result = do_something(&s1, &s2);
+        println!("{}", result);
       }
 
       fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str ?\tikzmark{lifetime_fix}? {
@@ -95,11 +105,11 @@
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:s2_lifetime_error) ++(0,0.1) --
+      \draw[thick,->] (pic cs:s2_lifetime_error) ++(0,-0.05) --
       ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} is only valid till here};
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,0.1) --
+      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,-0.05) --
       ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} is valid till here};
     \end{tikzpicture}
   \end{frame}

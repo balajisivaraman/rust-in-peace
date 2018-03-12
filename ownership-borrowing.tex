@@ -1,4 +1,11 @@
 \begin{section}{Ownership and Borrowing}
+
+  \begin{frame}
+    \centerline{
+      \huge{Ownership and Borrowing}
+    }
+  \end{frame}
+
   \begin{frame}[fragile]
     \frametitle{A Simple Program}
     \begin{minted}{rust}
@@ -19,7 +26,7 @@
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:compiler_free) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler frees the vector \mintinline{rust}{v} here};
+      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
     \end{tikzpicture}
   \end{frame}
 
@@ -57,7 +64,7 @@
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:ownership_compiler_freed) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler frees the vector \mintinline{rust}{v} here};
+      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:ownership_compiler_error) ++(0,0.1) --
@@ -72,7 +79,7 @@
         let v = vec!(1,2,3);
         let v1 = do_something(v); ?\tikzmark{return_ownership_moved}?
         println!("{:?}", v1); ?\tikzmark{return_ownership_noerror}?
-      }
+      } ?\tikzmark{return_ownership_freed}?
 
       fn do_something(v: Vec<usize>) -> Vec<usize> {
         // Do something with v
@@ -91,6 +98,10 @@
       \draw[thick,->] (pic cs:return_ownership_noerror) ++(0,0.1) --
       ++(2,0)node[right]{\scriptsize We can safely use \mintinline{rust}{v1} here};
     \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:return_ownership_freed) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v1} here};
+    \end{tikzpicture}
   \end{frame}
 
   \begin{frame}[fragile]
@@ -100,7 +111,7 @@
         let v = vec!(1,2,3);
         do_something(&v); ?\tikzmark{borrow_ownership}?
         println!("{:?}", &v); ?\tikzmark{borrow_ownership_noerror}?
-      }
+      } ?\tikzmark{borrowed_ownership_freed}?
 
       fn do_something(v: &Vec<usize>) {
         // Do something with v
@@ -113,6 +124,10 @@
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:borrow_ownership_noerror) ++(0,0.1) --
       ++(2,0)node[right]{\scriptsize Rust doesn't complain about \mintinline{rust}{v} usage here};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:borrowed_ownership_freed) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
     \end{tikzpicture}
   \end{frame}
 
@@ -151,18 +166,22 @@
   \end{frame}
 
   \begin{frame}[fragile]
-    \frametitle{Let's Mutate Everything}
+    \frametitle{Everything is Mutable}
     \begin{minted}[escapeinside=??]{rust}
       pub fn main() {
         let mut v = vec!(1,2,3);
         do_something(&mut v);
         println!("{:?}", v);
-      }
+      } ?\tikzmark{mutable_borrow_freed}?
 
       fn do_something(v: &mut Vec<usize>) {
         v.push(4);
       }
     \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:mutable_borrow_freed) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
+    \end{tikzpicture}
   \end{frame}
 
   \begin{frame}[fragile]
@@ -187,9 +206,9 @@
   \begin{frame}{Ownership and Borrowing Summary}
     \begin{itemize}
     \item Ownership once transferred, cannot be regained
-    \item We cannot mutate immutable borrowed content
-    \item We cannot borrow both mutably and immutably at the same time
-    \item We can immutably any number of times
+    \item Cannot mutate immutably borrowed content
+    \item Cannot borrow both mutably and immutably at the same time
+    \item Can immutably borrow any number of times
     \end{itemize}
   \end{frame}
 

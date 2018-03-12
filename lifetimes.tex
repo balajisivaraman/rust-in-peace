@@ -106,11 +106,39 @@
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:s2_lifetime_error) ++(0,-0.05) --
-      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} is only valid till here};
+      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} is dropped here};
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,-0.05) --
-      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} is valid till here};
+      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} and \mintinline{rust}{result} are dropped here};
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{The Lifetimes Fix}
+    \begin{minted}[escapeinside=??]{rust}
+      pub fn main() {
+        let mut s1 = String::from("hello");
+        let result;
+        {
+          let mut s2 = String::from("world");
+          result = do_something(&s1, &s2);
+          println("{}", result);
+        } ?\tikzmark{s2_lifetime_fix}?
+      } ?\tikzmark{s1_lifetime_fix}?
+
+      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+        //do something
+        s1
+      }
+    \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:s2_lifetime_fix) ++(0,-0.05) --
+      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} and \mintinline{rust}{result} are dropped here};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,-0.05) --
+      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} is dropped here};
     \end{tikzpicture}
   \end{frame}
 

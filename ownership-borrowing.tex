@@ -189,18 +189,12 @@
     \begin{minted}[escapeinside=??]{rust}
       pub fn main() {
         let mut v = vec!(1,2,3);
-        do_something(&mut v, &v); ?\tikzmark{mutable_immutable_borrow_error}?
+        let v1 = &v; //First Immutable Borrow is Fine
+        let v2 = &v; //Second Immutable Borrow is Fine
+        let v3 = &mut v; //Mutable and Immutable Borrows are Not Fine
         println!("{:?}", v);
       }
-
-      fn do_something(v_mut: &mut Vec<usize>, v: &Vec<usize>) {
-        // do something with v here
-      }
     \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:mutable_immutable_borrow_error) ++(0,0.1) --
-      ++(1,0)node[right]{\scriptsize Cannot borrow \mintinline{rust}{v} both mutably and immutably};
-    \end{tikzpicture}
   \end{frame}
 
   \begin{frame}{Ownership and Borrowing Summary}

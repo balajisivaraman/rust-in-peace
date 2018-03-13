@@ -1,5 +1,7 @@
 \begin{section}{Lifetimes}
 
+  \setmintedinline{fontsize=\scriptsize}
+
   \begin{frame}
     \centerline{
       \huge{Lifetimes}
@@ -7,139 +9,155 @@
   \end{frame}
 
   \begin{frame}[fragile]
-    \frametitle{What do you expect this to do? \cite{RustLang}}
-    \begin{minted}{rust}
-      pub fn main() {
-        let mut s1: &str = "hello";
-        let mut s2: &str = "world";
-        let result = do_something(&s1, &s2);
-        println!("{}", result);
-      }
-
-      fn do_something(s1: &str, s2: &str) -> &str {
-        //do something
-        s1
+    \frametitle{Brief Generics Recap}
+    \begin{minted}{java}
+      public <A> A genericFunction(A a1, A a2) {
+        return a1;
       }
     \end{minted}
   \end{frame}
 
+  \begin{frame}[fragile]
+    \frametitle{What do you expect this to do? \cite{RustLang}}
+    \begin{minted}[fontsize=\scriptsize]{rust}
+      pub fn main() {
+        let mut v1 = vec!(1,2,3);
+        let mut v2 = vec!(4,5,6);
+        let result1 = do_something_1(&v1);
+        let result2 = do_something_2(&v1, &v2);
+        println!("{}", result1);
+        println!("{}", result2);
+      }
+
+      fn do_something_1(s1: &Vec<usize>) -> &Vec<usize> {
+        return s1;
+      }
+
+      fn do_something_1(s1: &Vec<usize>, s2: &Vec<usize>) -> &Vec<usize> {
+        return s1;
+      }
+    \end{minted}
+  \end{frame}
 
   \begin{frame}[fragile]
     \frametitle{Rust Befuddles Us}
-    \begin{minted}[escapeinside=??]{rust}
+    \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut s1: &str = "hello";
-        let mut s2: &str = "world";
-        let result = do_something(&s1, &s2);
-        println!("{}", result);
+        let mut v1 = vec!(1,2,3);
+        let mut v2 = vec!(4,5,6);
+        let result1 = do_something_1(&v1);
+        let result2 = do_something_2(&v1, &v2);
+        println!("{}", result1);
+        println!("{}", result2);
       }
 
-      fn do_something(s1: &str, s2: &str) -> &str ?\tikzmark{lifetime_error}? {
-        //do something
-        s1
+      fn do_something_1(s1: &Vec<usize>) -> &Vec<usize> { ?\tikzmark{no_lifetime_error}?
+        return s1;
+      }
+
+      fn do_something_1(s1: &Vec<usize>, s2: &Vec<usize>) -> &Vec<usize> ?\tikzmark{lifetime_error}? {
+        return s1;
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:no_lifetime_error) ++(-1.5,-0.1) to[bend right]
+      ++(-0.5,-0.5)node[below]{\tiny Rust knows the lifetime of returned vector should be same as input vector};
+    \end{tikzpicture}
+    \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:lifetime_error) ++(-0.5,-0.1) to[bend left]
-      ++(-0.5,-1.5)node[left]{\scriptsize Rust doesn't know lifetime of returned string};
+      ++(-0.5,-0.5)node[left]{\tiny Rust complains it doesn't know about lifetime of returned vector};
     \end{tikzpicture}
   \end{frame}
 
   \begin{frame}[fragile]
     \frametitle{The `Fix`}
-    \begin{minted}[escapeinside=??]{rust}
+    \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut s1: &str = "hello";
-        let mut s2: &str = "world";
-        let result = do_something(&s1, &s2);
-        println!("{}", result);
+        let mut v1 = vec!(1,2,3);
+        let mut v2 = vec!(4,5,6);
+        let result1 = do_something_1(&v1);
+        let result2 = do_something_2(&v1, &v2);
+        println!("{}", result1);
+        println!("{}", result2);
       }
 
-      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str ?\tikzmark{lifetime_fix}? {
-        //do something
-        s1
+      fn do_something_1(s1: &Vec<usize>) -> &Vec<usize> {
+        return s1;
+      }
+
+      fn do_something_1<'a>(s1: &'a Vec<usize>, s2: &'a Vec<usize>) -> &'a Vec<usize> ?\tikzmark{lifetime_fix}? {
+        return s1;
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:lifetime_fix) ++(-0.5,-0.1) to[bend left]
-      ++(-2,-1.5)node[left]{\scriptsize We say all Strings have the same life};
+      ++(-0.5,-0.5)node[left]{\tiny We tell Rust that all vectors have the same lifetime};
     \end{tikzpicture}
   \end{frame}
 
     \begin{frame}[fragile]
     \frametitle{Why are Lifetimes necessary? \cite{RustLang}}
-    \begin{minted}[escapeinside=??]{rust}
+    \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut s1 = String::from("hello");
+        let mut v1 = vec!(1,2,3);
         let result;
         {
-          let mut s2 = String::from("world");
-          result = do_something(&s1, &s2);
+          let mut v2 = vec!(4,5,6);
+          result = do_something_2(&v1, &v2);
         }
-        println("{}", result);
+        println!("{}", result);
       }
 
-      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str {
-        //do something
-        s1
+      fn do_something_1<'a>(v1: &'a Vec<usize>, v2: &'a Vec<usize>) -> &'a Vec<usize> {
+        return v1;
       }
     \end{minted}
   \end{frame}
 
   \begin{frame}[fragile]
     \frametitle{Why are Lifetimes necessary?}
-    \begin{minted}[escapeinside=??]{rust}
+    \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut s1 = String::from("hello");
+        let mut v1 = vec!(1,2,3);
         let result;
         {
-          let mut s2 = String::from("world");
-          result = do_something(&s1, &s2);
+          let mut v2 = vec!(4,5,6);
+          result = do_something_2(&v1, &v2);
         } ?\tikzmark{s2_lifetime_error}?
-        println("{}", result);
+        println!("{}", result);
       } ?\tikzmark{s1_lifetime_error}?
 
-      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str {
-        //do something
-        s1
+      fn do_something<'a>(v1: &'a Vec<usize>, v2: &'a Vec<usize>) -> &'a Vec<usize> {
+        return v1;
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:s2_lifetime_error) ++(0,-0.05) --
-      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} is dropped here};
+      \draw[thick,->] (pic cs:s2_lifetime_error) ++(0,0.1) --
+      ++(5.5,0)node[right]{\tiny \mintinline{rust}{v2} is dropped here};
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,-0.05) --
-      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} and \mintinline{rust}{result} are dropped here};
+      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,0.1) --
+      ++(5.5,0)node[right]{\tiny \mintinline{rust}{v1} and \mintinline{rust}{result} are dropped here};
     \end{tikzpicture}
   \end{frame}
 
   \begin{frame}[fragile]
     \frametitle{The Lifetimes Fix}
-    \begin{minted}[escapeinside=??]{rust}
+    \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut s1 = String::from("hello");
+        let mut v1 = vec!(1,2,3);
         let result;
         {
-          let mut s2 = String::from("world");
-          result = do_something(&s1, &s2);
-          println("{}", result);
-        } ?\tikzmark{s2_lifetime_fix}?
-      } ?\tikzmark{s1_lifetime_fix}?
+          let mut v2 = vec!(4,5,6);
+          result = do_something_2(&v1, &v2);
+        }
+        println!("{}", result);
+      }
 
-      fn do_something<'a>(s1: &'a str, s2: &'a str) -> &'a str {
-        //do something
-        s1
+      fn do_something<'a, 'b>(v1: &'a Vec<usize>, v2: &'b Vec<usize>) -> &'a Vec<usize> {
+        return v1;
       }
     \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:s2_lifetime_fix) ++(0,-0.05) --
-      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s2} and \mintinline{rust}{result} are dropped here};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:s1_lifetime_error) ++(0,-0.05) --
-      ++(5.5,0)node[right]{\scriptsize \mintinline{rust}{s1} is dropped here};
-    \end{tikzpicture}
   \end{frame}
 
 \end{section}

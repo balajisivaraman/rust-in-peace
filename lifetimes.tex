@@ -18,23 +18,32 @@
   \end{frame}
 
   \begin{frame}[fragile]
+    \frametitle{Brief Generics Recap}
+    \begin{minted}{java}
+      public <A, B> A genericFunction(A a1, B a2) {
+        return a1;
+      }
+    \end{minted}
+  \end{frame}
+
+  \begin{frame}[fragile]
     \frametitle{What do you expect this to do? \cite{RustLangEd}}
     \begin{minted}[fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut v1 = vec!(1,2,3);
-        let mut v2 = vec!(4,5,6);
+        let v1 = vec!(1,2,3);
+        let v2 = vec!(4,5,6);
         let result1 = do_something_1(&v1);
         let result2 = do_something_2(&v1, &v2);
-        println!("{}", result1);
-        println!("{}", result2);
+        println!("{:?}", result1);
+        println!("{:?}", result2);
       }
 
-      fn do_something_1(s1: &Vec<usize>) -> &Vec<usize> {
+      fn do_something_1(v1: &Vec<u64>) -> &Vec<u64> {
         return s1;
       }
 
-      fn do_something_1(s1: &Vec<usize>, s2: &Vec<usize>) -> &Vec<usize> {
-        return s1;
+      fn do_something_2(v1: &Vec<u64>, v2: &Vec<u64>) -> &Vec<u64> {
+        return s2;
       }
     \end{minted}
   \end{frame}
@@ -43,20 +52,20 @@
     \frametitle{Rust Befuddles Us}
     \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut v1 = vec!(1,2,3);
-        let mut v2 = vec!(4,5,6);
+        let v1 = vec!(1,2,3);
+        let v2 = vec!(4,5,6);
         let result1 = do_something_1(&v1);
         let result2 = do_something_2(&v1, &v2);
-        println!("{}", result1);
-        println!("{}", result2);
+        println!("{:?}", result1);
+        println!("{:?}", result2);
       }
 
-      fn do_something_1(s1: &Vec<usize>) -> &Vec<usize> { ?\tikzmark{no_lifetime_error}?
-        return s1;
+      fn do_something_1(v1: &Vec<u64>) -> &Vec<u64> { ?\tikzmark{no_lifetime_error}?
+        return v1;
       }
 
-      fn do_something_1(s1: &Vec<usize>, s2: &Vec<usize>) -> &Vec<usize> ?\tikzmark{lifetime_error}? {
-        return s1;
+      fn do_something_2(v1: &Vec<u64>, v2: &Vec<u64>) -> &Vec<u64> ?\tikzmark{lifetime_error}? {
+        return v2;
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
@@ -73,20 +82,20 @@
     \frametitle{The `Fix`}
     \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut v1 = vec!(1,2,3);
-        let mut v2 = vec!(4,5,6);
+        let v1 = vec!(1,2,3);
+        let v2 = vec!(4,5,6);
         let result1 = do_something_1(&v1);
         let result2 = do_something_2(&v1, &v2);
-        println!("{}", result1);
-        println!("{}", result2);
+        println!("{:?}", result1);
+        println!("{:?}", result2);
       }
 
-      fn do_something_1(s1: &Vec<usize>) -> &Vec<usize> {
+      fn do_something_1(v1: &Vec<u64>) -> &Vec<u64> {
         return s1;
       }
 
-      fn do_something_1<'a>(s1: &'a Vec<usize>, s2: &'a Vec<usize>) -> &'a Vec<usize> ?\tikzmark{lifetime_fix}? {
-        return s1;
+      fn do_something_2<'a>(v1: &'a Vec<u64>, v2: &'a Vec<u64>) -> &'a Vec<u64> ?\tikzmark{lifetime_fix}? {
+        return v2;
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
@@ -99,17 +108,17 @@
     \frametitle{Why are Lifetimes necessary? \cite{RustLangCh10}}
     \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut v1 = vec!(1,2,3);
+        let v1 = vec!(1,2,3);
         let result;
         {
-          let mut v2 = vec!(4,5,6);
-          result = do_something_2(&v1, &v2);
+          let v2 = vec!(4,5,6);
+          result = do_something(&v1, &v2);
         }
-        println!("{}", result);
+        println!("{:?}", result);
       }
 
-      fn do_something_1<'a>(v1: &'a Vec<usize>, v2: &'a Vec<usize>) -> &'a Vec<usize> {
-        return v1;
+      fn do_something<'a>(v1: &'a Vec<u64>, v2: &'a Vec<u64>) -> &'a Vec<u64> {
+        return v2;
       }
     \end{minted}
   \end{frame}
@@ -118,17 +127,17 @@
     \frametitle{Why are Lifetimes necessary?}
     \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut v1 = vec!(1,2,3);
+        let v1 = vec!(1,2,3);
         let result;
         {
-          let mut v2 = vec!(4,5,6);
-          result = do_something_2(&v1, &v2);
+          let v2 = vec!(4,5,6);
+          result = do_something_1(&v1, &v2);
         } ?\tikzmark{s2_lifetime_error}?
-        println!("{}", result);
+        println!("{:?}", result);
       } ?\tikzmark{s1_lifetime_error}?
 
-      fn do_something<'a>(v1: &'a Vec<usize>, v2: &'a Vec<usize>) -> &'a Vec<usize> {
-        return v1;
+      fn do_something<'a>(v1: &'a Vec<u64>, v2: &'a Vec<u64>) -> &'a Vec<u64> {
+        return v2;
       }
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
@@ -145,17 +154,17 @@
     \frametitle{The Lifetimes Fix}
     \begin{minted}[escapeinside=??,fontsize=\scriptsize]{rust}
       pub fn main() {
-        let mut v1 = vec!(1,2,3);
+        let v1 = vec!(1,2,3);
         let result;
         {
-          let mut v2 = vec!(4,5,6);
+          let v2 = vec!(4,5,6);
           result = do_something_2(&v1, &v2);
         }
-        println!("{}", result);
+        println!("{:?}", result);
       }
 
-      fn do_something<'a, 'b>(v1: &'a Vec<usize>, v2: &'b Vec<usize>) -> &'a Vec<usize> {
-        return v1;
+      fn do_something<'a, 'b>(v1: &'a Vec<u64>, v2: &'b Vec<u64>) -> &'a Vec<u64> {
+        return v2;
       }
     \end{minted}
   \end{frame}

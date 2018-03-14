@@ -20,10 +20,14 @@
     \frametitle{What the Rust compiler does?}
     \begin{minted}[escapeinside=??]{rust}
       pub fn main() {
-        let v = vec!(1,2,3);
+        let v = vec!(1,2,3); ?\tikzmark{compiler_allocates}?
         println!("{:?}", v);
       } ?\tikzmark{compiler_free}?
     \end{minted}
+    \begin{tikzpicture}[overlay,remember picture]
+      \draw[thick,->] (pic cs:compiler_allocates) ++(0,0.1) --
+      ++(4,0)node[right]{\scriptsize Rust compiler allocates memory in heap for the vector \mintinline{rust}{v} here};
+    \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:compiler_free) ++(0,0.1) --
       ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
@@ -39,7 +43,7 @@
         println!("{:?}", v);
       }
 
-      fn do_something(v: Vec<usize>) {
+      fn do_something(v: Vec<u64>) {
         // Do something with v
       }
     \end{minted}
@@ -54,7 +58,7 @@
         println!("{:?}", v); ?\tikzmark{ownership_compiler_error}?
       }
 
-      fn do_something(v: Vec<usize>) {
+      fn do_something(v: Vec<u64>) {
         // Do something with v
       } ?\tikzmark{ownership_compiler_freed}?
     \end{minted}
@@ -81,7 +85,7 @@
         println!("{:?}", v1); ?\tikzmark{return_ownership_noerror}?
       } ?\tikzmark{return_ownership_freed}?
 
-      fn do_something(v: Vec<usize>) -> Vec<usize> {
+      fn do_something(v: Vec<u64>) -> Vec<u64> {
         // Do something with v
         return v; ?\tikzmark{return_ownership}?
       }
@@ -110,10 +114,10 @@
       pub fn main() {
         let v = vec!(1,2,3);
         do_something(&v); ?\tikzmark{borrow_ownership}?
-        println!("{:?}", &v); ?\tikzmark{borrow_ownership_noerror}?
+        println!("{:?}", v); ?\tikzmark{borrow_ownership_noerror}?
       } ?\tikzmark{borrowed_ownership_freed}?
 
-      fn do_something(v: &Vec<usize>) {
+      fn do_something(v: &Vec<u64>) {
         // Do something with v
       }
     \end{minted}
@@ -140,7 +144,7 @@
         println!("{:?}", v);
       }
 
-      fn do_something(v: &Vec<usize>) {
+      fn do_something(v: &Vec<u64>) {
         v.push(4);
       }
     \end{minted}
@@ -155,7 +159,7 @@
         println!("{:?}", v);
       }
 
-      fn do_something(v: &Vec<usize>) {
+      fn do_something(v: &Vec<u64>) {
         v.push(4); ?\tikzmark{immutable_borrow_error}?
       }
     \end{minted}
@@ -174,7 +178,7 @@
         println!("{:?}", v);
       } ?\tikzmark{mutable_borrow_freed}?
 
-      fn do_something(v: &mut Vec<usize>) {
+      fn do_something(v: &mut Vec<u64>) {
         v.push(4);
       }
     \end{minted}

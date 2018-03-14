@@ -204,6 +204,7 @@
   \begin{frame}{Ownership and Borrowing Summary}
     \begin{itemize}
     \item Ownership once transferred, cannot be regained
+    \item There is always one owner for value, which is responsible for dropping it
     \item Cannot mutate immutably borrowed content
     \item Cannot borrow both mutably and immutably at the same time
     \item Can immutably borrow any number of times

@@ -39,11 +39,11 @@
       }
 
       fn do_something_1(v1: &Vec<u64>) -> &Vec<u64> {
-        return s1;
+        return v1;
       }
 
       fn do_something_2(v1: &Vec<u64>, v2: &Vec<u64>) -> &Vec<u64> {
-        return s2;
+        return v2;
       }
     \end{minted}
   \end{frame}
@@ -91,7 +91,7 @@
       }
 
       fn do_something_1(v1: &Vec<u64>) -> &Vec<u64> {
-        return s1;
+        return v1;
       }
 
       fn do_something_2<'a>(v1: &'a Vec<u64>, v2: &'a Vec<u64>) -> &'a Vec<u64> ?\tikzmark{lifetime_fix}? {

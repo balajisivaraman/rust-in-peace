@@ -163,7 +163,7 @@
         println!("{:?}", result);
       }
 
-      fn do_something<'a, 'b>(v1: &'a Vec<u64>, v2: &'b Vec<u64>) -> &'a Vec<u64> {
+      fn do_something<'a, 'b>(v1: &'a Vec<u64>, v2: &'b Vec<u64>) -> &'b Vec<u64> {
         return v2;
       }
     \end{minted}

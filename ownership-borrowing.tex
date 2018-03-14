@@ -26,7 +26,7 @@
     \end{minted}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:compiler_allocates) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler allocates memory in heap for the vector \mintinline{rust}{v} here};
+      ++(1,0)node[right]{\scriptsize Rust compiler allocates memory in heap for \mintinline{rust}{v} here};
     \end{tikzpicture}
     \begin{tikzpicture}[overlay,remember picture]
       \draw[thick,->] (pic cs:compiler_free) ++(0,0.1) --

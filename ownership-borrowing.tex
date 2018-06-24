@@ -1,221 +1,252 @@
-\begin{section}{Ownership and Borrowing}
+\section{Ownership and Borrowing}
+\label{sec:ownership-borrowing}
 
-  \begin{frame}
-    \centerline{
-      \huge{Ownership and Borrowing}
+\begin{frame}
+  \centerline{
+    \huge{Ownership and Borrowing}
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{A Tale of Three Programs}
+  \begin{minted}{ruby}
+    def main
+    a = [1, 2, 3]
+    puts a
+    end
+
+    main
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{A Tale of Three Programs}
+  This is not representative of actual C code (:-P) \break{}
+  \begin{minted}[fontsize=\scriptsize]{c}
+    #include<stdio.h>
+
+    int main() {
+      int *ptr = malloc(sizeof(int) * 3);
+      ptr[0] = 1;
+      ptr[1] = 2;
+      ptr[2] = 3;
+      for(int i = 0; i < 3; i++) {
+        printf("%d", ptr[i]);
+      }
+      free(ptr);
+      return 1;
     }
-  \end{frame}
+  \end{minted}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{A Simple Program}
-    \begin{minted}{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        println!("{:?}", v);
-      }
-    \end{minted}
-  \end{frame}
+\begin{frame}[fragile]
+  \frametitle{A Tale of Three Programs}
+  \begin{minted}{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      println!("{:?}", v);
+    }
+  \end{minted}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{What the Rust compiler does?}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let v = vec!(1,2,3); ?\tikzmark{compiler_allocates}?
-        println!("{:?}", v);
-      } ?\tikzmark{compiler_free}?
-    \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:compiler_allocates) ++(0,0.1) --
-      ++(1,0)node[right]{\scriptsize Rust compiler allocates memory in heap for \mintinline{rust}{v} here};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:compiler_free) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
-    \end{tikzpicture}
-  \end{frame}
+\begin{frame}[fragile]
+  \frametitle{What the Rust compiler does?}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let v = vec!(1,2,3); ?\tikzmark{compiler_allocates}?
+      println!("{:?}", v);
+    } ?\tikzmark{compiler_free}?
+  \end{minted}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:compiler_allocates) ++(0,0.1) --
+    ++(1,0)node[right]{\scriptsize Rust compiler allocates memory in heap for \mintinline{rust}{v} here};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:compiler_free) ++(0,0.1) --
+    ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
+  \end{tikzpicture}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{Another Simple Program}
-    \begin{minted}{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        do_something(v);
-        println!("{:?}", v);
-      }
+\begin{frame}[fragile]
+  \frametitle{Another Simple Program}
+  \begin{minted}{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      do_something(v);
+      println!("{:?}", v);
+    }
 
-      fn do_something(v: Vec<u64>) {
-        // Do something with v
-      }
-    \end{minted}
-  \end{frame}
+    fn do_something(v: Vec<u64>) {
+      // Do something with v
+    }
+  \end{minted}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{What happens here?}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        do_something(v); ?\tikzmark{ownership_moved}?
-        println!("{:?}", v); ?\tikzmark{ownership_compiler_error}?
-      }
+\begin{frame}[fragile]
+  \frametitle{What happens here?}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      do_something(v); ?\tikzmark{ownership_moved}?
+      println!("{:?}", v); ?\tikzmark{ownership_compiler_error}?
+    }
 
-      fn do_something(v: Vec<u64>) {
-        // Do something with v
-      } ?\tikzmark{ownership_compiler_freed}?
-    \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:ownership_moved) ++(0,0.1) --
-      ++(2,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:ownership_compiler_freed) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:ownership_compiler_error) ++(0,0.1) --
-      ++(2,0)node[right]{\scriptsize Rust doesn't allow us to use \mintinline{rust}{v} here};
-    \end{tikzpicture}
-  \end{frame}
+    fn do_something(v: Vec<u64>) {
+      // Do something with v
+    } ?\tikzmark{ownership_compiler_freed}?
+  \end{minted}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:ownership_moved) ++(0,0.1) --
+    ++(2,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:ownership_compiler_freed) ++(0,0.1) --
+    ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:ownership_compiler_error) ++(0,0.1) --
+    ++(2,0)node[right]{\scriptsize Rust doesn't allow us to use \mintinline{rust}{v} here};
+  \end{tikzpicture}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{Returning Ownership Back}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        let v1 = do_something(v); ?\tikzmark{return_ownership_moved}?
-        println!("{:?}", v1); ?\tikzmark{return_ownership_noerror}?
-      } ?\tikzmark{return_ownership_freed}?
+\begin{frame}[fragile]
+  \frametitle{Returning Ownership Back}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      let v1 = do_something(v); ?\tikzmark{return_ownership_moved}?
+      println!("{:?}", v1); ?\tikzmark{return_ownership_noerror}?
+    } ?\tikzmark{return_ownership_freed}?
 
-      fn do_something(v: Vec<u64>) -> Vec<u64> {
-        // Do something with v
-        return v; ?\tikzmark{return_ownership}?
-      }
-    \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:return_ownership_moved) ++(0,0.1) --
-      ++(1,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:return_ownership) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} returned to calling fn};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:return_ownership_noerror) ++(0,0.1) --
-      ++(2,0)node[right]{\scriptsize We can safely use \mintinline{rust}{v1} here};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:return_ownership_freed) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v1} here};
-    \end{tikzpicture}
-  \end{frame}
+    fn do_something(v: Vec<u64>) -> Vec<u64> {
+      // Do something with v
+      return v; ?\tikzmark{return_ownership}?
+    }
+  \end{minted}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:return_ownership_moved) ++(0,0.1) --
+    ++(1,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} transferred to \mintinline{rust}{do_something}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:return_ownership) ++(0,0.1) --
+    ++(4,0)node[right]{\scriptsize Ownership of \mintinline{rust}{v} returned to calling fn};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:return_ownership_noerror) ++(0,0.1) --
+    ++(2,0)node[right]{\scriptsize We can safely use \mintinline{rust}{v1} here};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:return_ownership_freed) ++(0,0.1) --
+    ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v1} here};
+  \end{tikzpicture}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{Borrowing}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        do_something(&v); ?\tikzmark{borrow_ownership}?
-        println!("{:?}", v); ?\tikzmark{borrow_ownership_noerror}?
-      } ?\tikzmark{borrowed_ownership_freed}?
+\begin{frame}[fragile]
+  \frametitle{Borrowing}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      do_something(&v); ?\tikzmark{borrow_ownership}?
+      println!("{:?}", v); ?\tikzmark{borrow_ownership_noerror}?
+    } ?\tikzmark{borrowed_ownership_freed}?
 
-      fn do_something(v: &Vec<u64>) {
-        // Do something with v
-      }
-    \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:borrow_ownership) ++(0,0.1) --
-      ++(1.2,0)node[right]{\scriptsize \mintinline{rust}{do_something} borrows ownership of \mintinline{rust}{v}};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:borrow_ownership_noerror) ++(0,0.1) --
-      ++(2,0)node[right]{\scriptsize Rust doesn't complain about \mintinline{rust}{v} usage here};
-    \end{tikzpicture}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:borrowed_ownership_freed) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
-    \end{tikzpicture}
-  \end{frame}
+    fn do_something(v: &Vec<u64>) {
+      // Do something with v
+    }
+  \end{minted}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:borrow_ownership) ++(0,0.1) --
+    ++(1.2,0)node[right]{\scriptsize \mintinline{rust}{do_something} borrows ownership of \mintinline{rust}{v}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:borrow_ownership_noerror) ++(0,0.1) --
+    ++(2,0)node[right]{\scriptsize Rust doesn't complain about \mintinline{rust}{v} usage here};
+  \end{tikzpicture}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:borrowed_ownership_freed) ++(0,0.1) --
+    ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
+  \end{tikzpicture}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{Let's Mutate Things}
-    \begin{minted}{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        do_something(&v);
-        println!("{:?}", v);
-      }
+\begin{frame}[fragile]
+  \frametitle{Let's Mutate Things}
+  \begin{minted}{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      do_something(&v);
+      println!("{:?}", v);
+    }
 
-      fn do_something(v: &Vec<u64>) {
-        v.push(4);
-      }
-    \end{minted}
-  \end{frame}
+    fn do_something(v: &Vec<u64>) {
+      v.push(4);
+    }
+  \end{minted}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{Uh Oh!}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let v = vec!(1,2,3);
-        do_something(&v);
-        println!("{:?}", v);
-      }
+\begin{frame}[fragile]
+  \frametitle{Uh Oh!}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      do_something(&v);
+      println!("{:?}", v);
+    }
 
-      fn do_something(v: &Vec<u64>) {
-        v.push(4); ?\tikzmark{immutable_borrow_error}?
-      }
-    \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:immutable_borrow_error) ++(0,0.1) --
-      ++(2,0)node[right]{\scriptsize Cannot mutate immutably borrowed \mintinline{rust}{v} here};
-    \end{tikzpicture}
-  \end{frame}
+    fn do_something(v: &Vec<u64>) {
+      v.push(4); ?\tikzmark{immutable_borrow_error}?
+    }
+  \end{minted}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:immutable_borrow_error) ++(0,0.1) --
+    ++(2,0)node[right]{\scriptsize Cannot mutate immutably borrowed \mintinline{rust}{v} here};
+  \end{tikzpicture}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{Everything is Mutable}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let mut v = vec!(1,2,3);
-        do_something(&mut v);
-        println!("{:?}", v);
-      } ?\tikzmark{mutable_borrow_freed}?
+\begin{frame}[fragile]
+  \frametitle{Everything is Mutable}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let mut v = vec!(1,2,3);
+      do_something(&mut v);
+      println!("{:?}", v);
+    } ?\tikzmark{mutable_borrow_freed}?
 
-      fn do_something(v: &mut Vec<u64>) {
-        v.push(4);
-      }
-    \end{minted}
-    \begin{tikzpicture}[overlay,remember picture]
-      \draw[thick,->] (pic cs:mutable_borrow_freed) ++(0,0.1) --
-      ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
-    \end{tikzpicture}
-  \end{frame}
+    fn do_something(v: &mut Vec<u64>) {
+      v.push(4);
+    }
+  \end{minted}
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[thick,->] (pic cs:mutable_borrow_freed) ++(0,0.1) --
+    ++(4,0)node[right]{\scriptsize Rust compiler drops the vector \mintinline{rust}{v} here};
+  \end{tikzpicture}
+\end{frame}
 
-  \begin{frame}[fragile]
-    \frametitle{One Final Note \cite{RustLangCh4}}
-    \begin{minted}[escapeinside=??]{rust}
-      pub fn main() {
-        let mut v = vec!(1,2,3);
-        let v1 = &v; //First Immutable Borrow is Fine
-        let v2 = &v; //Second Immutable Borrow is Fine
-        let v3 = &mut v; //Mutable and Immutable Borrows are Not Fine
-        println!("{:?}", v);
-      }
-    \end{minted}
-  \end{frame}
+\begin{frame}[fragile]
+  \frametitle{One Final Note \cite{RustLangCh4}}
+  \begin{minted}[escapeinside=??]{rust}
+    pub fn main() {
+      let mut v = vec!(1,2,3);
+      let v1 = &v; //First Immutable Borrow is Fine
+      let v2 = &v; //Second Immutable Borrow is Fine
+      let v3 = &mut v; //Mutable and Immutable Borrows are Not Fine
+      println!("{:?}", v);
+    }
+  \end{minted}
+\end{frame}
 
-  \begin{frame}{Ownership and Borrowing Summary}
-    \begin{itemize}
-    \item Ownership once transferred, cannot be regained
-    \item There is always one owner for value, which is responsible for dropping it
-    \item Cannot mutate immutably borrowed content
-    \item Cannot borrow both mutably and immutably at the same time
-    \item Can immutably borrow any number of times
-    \end{itemize}
-  \end{frame}
+\begin{frame}{Ownership and Borrowing Summary}
+  \begin{itemize}
+  \item Ownership once transferred, cannot be regained
+  \item There is always one owner for value, which is responsible for dropping it
+  \item Cannot mutate immutably borrowed content
+  \item Cannot borrow both mutably and immutably at the same time
+  \item Can immutably borrow any number of times
+  \end{itemize}
+\end{frame}
 
-  \begin{frame}{Why is all this necessary?}
-    \begin{itemize}
-    \item Eliminates common class of memory errors. For eg: Double Free Error
-    \item Avoid data races by allowing only one mutable borrow
-    \end{itemize}
-  \end{frame}
-
-\end{section}
+\begin{frame}{Why is all this necessary?}
+  \begin{itemize}
+  \item Eliminates common class of memory errors. For eg: Double Free Error
+  \item Avoid data races by allowing only one mutable borrow
+  \end{itemize}
+\end{frame}

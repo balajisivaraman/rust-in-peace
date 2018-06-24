@@ -1,20 +1,146 @@
-\begin{section}{Rust Programming Language}
-  \begin{frame}{Key Language Features}
+\section{Rust Programming Language}
+\label{sec:rust-language}
+
+\begin{frame}
+  \centerline{
+    \huge{The Rust Programming Language}
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Can you make sense of this?}
+  \begin{minted}{rust}
+    pub fn main() {
+      let v = vec!(1,2,3);
+      let numbers: Vec<i32> = v.iter().map(|n| n * n).collect();
+      println!("{:?}", numbers);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Rust Benefits}
+  \begin{itemize}
+  \item High-Level Syntax (similar to Ruby or Java)
+  \item Low-Level Performance (similar to C/C++)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Rust ❤ TDD}
+  \begin{minted}{rust}
+    pub fn add_one(a: u32) -> u32 {
+      a + 1
+    }
+
+    #[test]
+    fn test_add() {
+      let result = add_one(1);
+      assert_eq!(result, 2);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Running tests is straightforward}
+  \begin{minted}{bash}
+    $ cargo --test sample.rs
+    $ ./sample
+    running 1 test
+    test test_add ... ok
+    test result: ok. 1 passed; 0 failed; 0 ignored;
+    0 measured; 0 filtered out
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mimic OO}
+  Let's define a simple Trait! \break{}
+  \begin{minted}{rust}
+    trait Animal {
+      fn walk(&self);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mimic OO}
+  Let's implement it! \break{}
+  \begin{minted}[fontsize=\scriptsize]{rust}
+    struct Cat {
+      name: String
+    }
+
+    impl Animal for Cat {
+      fn walk(&self) {
+        println!("{} walks like a cat", self.name);
+      }
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mimic OO}
+  Let's implement it again! \break{}
+  \begin{minted}[fontsize=\scriptsize]{rust}
+    struct Dog {
+      name: String
+    }
+
+    impl Animal for Dog {
+      fn walk(&self) {
+        println!("{} walks like a dog", self.name);
+      }
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mimic OO}
+  What is the output? \break{}
+  \begin{minted}{rust}
+    fn main() {
+      let d = Dog { name: String::from("Snuggles") };
+      let c = Cat { name: String::from("Puss in Boots") };
+      d.walk();
+      c.walk();
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{And the output}
+  \begin{minted}{shell}
+    $ rustc sample.rs
+    $ ./sample
+    Snuggles walks like a dog
+    Puss in Boots walks like a cat
+  \end{minted}
+\end{frame}
+
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\scriptsize}
+
+\begin{frame}
+  \frametitle{Key Language Features}
+  \begin{itemize}
+  \item Functional Features
     \begin{itemize}
-    \item Functional Language Features I like in Rust
-    \begin{itemize}
-    \item Pattern Matching
-    \item ENums similar to Algebraic Data Types
+    \item ENums, Pattern Matching and Algebraic Data Types
     \item Lazy Iterators
     \item Functions as first class values
-    \item Error Handling Primitives using Result ADT
     \end{itemize}
-    \item Rust Lang Features I Like
+  \item OO-Like Features
     \begin{itemize}
-    \item \textbf{Ownership, Borrowing and Lifetimes}
+    \item Traits and Implementations
+    \item Trait Bounds and Trait Objects
+    \end{itemize}
+  \item Rust Lang Features
+    \begin{itemize}
+    \item \textbf{Ownership and Borrowing}
+    \item Lifetimes
     \item Unit Testing primitives as part of the core language
-    \item Concurrency Primitives - Threads, Channels, Atomic Values etc.
+    \item Concurrency Primitives --- Threads, Channels, Atomic Values etc.
     \end{itemize}
-    \end{itemize}
-  \end{frame}
-\end{section}
+  \end{itemize}
+\end{frame}

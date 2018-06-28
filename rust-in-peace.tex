@@ -15,6 +15,7 @@
 \usepackage[backend=biber,style=numeric]{biblatex}
 \bibliography{rust-in-peace.bib}
 \usepackage{fontspec}
+\newfontfamily\DejaSans{DejaVu Sans}
 \usepackage[outputdir=output]{minted}
 \usepackage{tikz}
 \usetikzlibrary{tikzmark}
@@ -30,7 +31,11 @@
 \date{June 28, 2018}
 \title{Rust in Peace}
 \institute{ThoughtWorks}
+\definecolor{links}{HTML}{5B68B5}
 \hypersetup{
+  colorlinks,
+  allcolors=.,
+  urlcolor=links,
   pdfauthor={Balaji Sivaraman},
   pdftitle={Rust in Peace},
   pdfkeywords={rust-lang,systems-programming,memory-management,lifetimes},
